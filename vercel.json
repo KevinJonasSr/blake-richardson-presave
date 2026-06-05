@@ -1,0 +1,8 @@
+{
+  "buildCommand": "echo 'Ready to build'",
+  "outputDirectory": "public",
+  "framework": "vanilla",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

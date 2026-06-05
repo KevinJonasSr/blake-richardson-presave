@@ -1,0 +1,13 @@
+{
+  "name": "blakerichardson-presave",
+  "version": "1.0.0",
+  "description": "Blake Richardson Pre-Save Landing Page — Infrastructure",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Use Vercel CLI for local development'",
+    "build": "echo 'Vercel handles build'"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
