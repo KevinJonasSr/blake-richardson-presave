@@ -1,0 +1,159 @@
+{
+  "monitors": [
+    {
+      "name": "Blake Richardson Staging - Root Page",
+      "provider": "better-uptime",
+      "type": "http",
+      "url": "https://fanengage-pro.onrender.com/",
+      "method": "GET",
+      "expected_status": 200,
+      "check_frequency": 300,
+      "timeout": 15,
+      "regions": ["us", "eu"],
+      "headers": {
+        "User-Agent": "Uptime-Monitor"
+      },
+      "alerts": {
+        "channels": [
+          {
+            "type": "slack",
+            "webhook_url": "${SLACK_WEBHOOK_BLAKERICHARDSON_PRESAVE}",
+            "message_template": "Blake Richardson staging root page is {{status}}. Response time: {{response_time}}ms"
+          },
+          {
+            "type": "email",
+            "recipients": ["ops@company.com"],
+            "subject": "Alert: Blake Richardson staging root page {{status}}"
+          }
+        ],
+        "triggers": [
+          {
+            "condition": "down",
+            "threshold": 2,
+            "window_seconds": 600,
+            "action": "immediate"
+          },
+          {
+            "condition": "response_time_gt",
+            "value_ms": 2000,
+            "threshold": 3,
+            "window_seconds": 300,
+            "action": "notify"
+          },
+          {
+            "condition": "status_change",
+            "action": "notify"
+          }
+        ]
+      },
+      "performance_monitoring": {
+        "enabled": true,
+        "track_metrics": ["response_time", "dns_time", "connect_time", "tls_time"],
+        "anomaly_detection": {
+          "enabled": true,
+          "baseline_window_days": 7,
+          "alert_threshold_std_dev": 2
+        }
+      }
+    },
+    {
+      "name": "Blake Richardson Staging - Health Check",
+      "provider": "better-uptime",
+      "type": "http",
+      "url": "https://fanengage-pro.onrender.com/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "check_frequency": 300,
+      "timeout": 15,
+      "response_body_contains": "ok",
+      "alerts": {
+        "channels": [
+          {
+            "type": "slack",
+            "webhook_url": "${SLACK_WEBHOOK_BLAKERICHARDSON_PRESAVE}",
+            "message_template": "Blake Richardson health check {{status}}. {{response_body}}"
+          }
+        ],
+        "triggers": [
+          {
+            "condition": "failed_check",
+            "threshold": 2,
+            "window_seconds": 300,
+            "action": "immediate_escalate"
+          }
+        ]
+      },
+      "performance_monitoring": {
+        "enabled": true,
+        "sla": {
+          "uptime_target_percent": 99.9,
+          "response_time_p95_ms": 1000,
+          "response_time_p99_ms": 2000
+        }
+      }
+    }
+  ],
+  "dashboards": [
+    {
+      "name": "Blake Richardson Pre-Save Status",
+      "type": "public_status_page",
+      "url_slug": "blake-richardson-presave",
+      "components": [
+        {
+          "name": "Landing Page",
+          "monitors": ["Blake Richardson Staging - Root Page"]
+        },
+        {
+          "name": "API Health",
+          "monitors": ["Blake Richardson Staging - Health Check"]
+        }
+      ],
+      "incident_response": {
+        "auto_incident_on_failure": true,
+        "incident_title_template": "{{component_name}} — {{status}}",
+        "notify_subscribers": true,
+        "update_frequency_minutes": 5
+      }
+    }
+  ],
+  "escalation_policies": [
+    {
+      "name": "Blake Richardson Staging Escalation",
+      "rules": [
+        {
+          "trigger": "monitor_down",
+          "wait_minutes": 5,
+          "action": "escalate_to_oncall"
+        },
+        {
+          "trigger": "response_time_threshold_exceeded",
+          "threshold_ms": 2000,
+          "window_minutes": 5,
+          "action": "notify_team"
+        }
+      ]
+    }
+  ],
+  "deployment_instructions": {
+    "provider": "better-uptime",
+    "setup_time_minutes": 15,
+    "steps": [
+      "1. Log in to https://betterstack.com/uptime",
+      "2. Create new HTTP monitor with settings from 'monitors[0]' above",
+      "3. Configure Slack integration: Settings → Integrations → Slack",
+      "4. Add webhook URL from Slack (generated in #blakerichardson-presave channel)",
+      "5. Set alert policy per 'alerts' configuration",
+      "6. Repeat steps 2-5 for 'monitors[1]'",
+      "7. Create public status page from 'dashboards[0]' settings",
+      "8. Share status page URL in issue comments",
+      "9. Test alerts with manual 'Test Alert' button in monitor settings"
+    ]
+  },
+  "metrics_to_track": {
+    "uptime": "Target 99.9%",
+    "response_time_p95": "< 1000ms",
+    "response_time_p99": "< 2000ms",
+    "error_rate": "< 0.1%",
+    "traffic_anomalies": "Alert on > 150% baseline traffic spike"
+  }
+}
